@@ -182,34 +182,26 @@ def removeFile():
     file.close()
 
 
-
 def seccionarStock(msg):
     seccion = ""
     c = 2
     text = msg.split()
 #en este caso no c han usado los gnomos
     if "/sg_" in msg:
-
+        text = msg.replace("📦Storage (4133/4500): Use /sg_{code} to trade some amount of resource for 1💰/pcs","").split()
+        contador = 0
         for x in text:
             if "/sg_" in x:
-                seccion = seccion + Quitar_sg(x) + " " 
-
-            if x.isnumeric():
-                seccion = seccion + x + "c" + " " #esta c q annado al final es para identificar q ese valor pertenece a una cantidad y no a un codigo
-#en este caso ya c usaron los gnomos
+                 seccion = seccion + text[contador][4:len(text)-1] + " "
+            if "(" in x:
+                 h = text[contador][1:len(text[contador])-1]
+                 seccion = seccion + h + " "   
+            contador = contador + 1
+            
     else:
         while c < len(text):
             if "(" in text[c]:
-
-                # z = ""
-
-                h = text[c][1:len(text[c])-1] # h = todo entre parentesis
-                
-                # x = text[c].split() #AKI: El split no divide ( 1 ), lo conserva junto
-                # for y in x:
-                #     if y.isnumeric():     {   Esta seccion la cambie por la linea 177
-                #         z=z+y
-                
+                h = text[c][1:len(text[c])-1] # h = todo entre parentesis 
                 seccion = seccion + h + " "  
             elif not ("(" in text[c]) and not("(" in text[c+1]):
                 compuesta = ""
@@ -237,16 +229,4 @@ def refreshUsersStock(stock , id):
 storage = "Storage (4337/4500): Artisan frame (1) Bauxite (3) Blacksmith frame (2) Blacksmith mold (2) Bone powder (2) Bone (17) Charcoal (4) Coal (16) Coke (28) Cord (26) Crafted leather (14) Leather (3)"
 storage_con_sg = "📦Storage (4133/4500): Use /sg_{code} to trade some amount of resource for 1💰/pcs /sg_30 Artisan frame (1) /sg_11 Bauxite (3) /sg_29 Blacksmith frame (1) /sg_37 Blacksmith mold (2) /sg_21 Bone powder (2) /sg_04 Bone (15) /sg_06 Charcoal (5) /sg_09 Cloth (1) /sg_05 Coal (16) /sg_12 Cord (25) /sg_35 Crafted leather (8) /sg_08 Iron ore (2) /sg_20 Leather (4) /sg_33 Metal plate (5)"
 
-# removeFile()
-# saveUsersStock(seccionarStock(storage),"pepino")
-# saveUsersStock(seccionarStock(storage),"patata")
-# file = open("file.txt","r")
-# print(file.read())
-# file.close()
-
-refreshUsersStock("pepino" , "patata")
-file = open("file.txt","r")
-print(file.read())
-
-def HelloWorld:
-    print("Yo!")
+print(seccionarStock(storage_con_sg))
