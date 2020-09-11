@@ -248,4 +248,5 @@ refreshUsersStock("pepino" , "patata")
 file = open("file.txt","r")
 print(file.read())
 
-
+def HelloWorld:
+    print("Yo!")
