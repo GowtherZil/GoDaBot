@@ -1,5 +1,8 @@
 #Aki empiezo
 
+def FinalTestAgain():
+    return 2
+
 def Save_stock(msg, who, user, message):
     banned = True
     if who in listaPermitidos:
