@@ -176,7 +176,7 @@ def getUsersStock(id):
 
 
 #Combinando saveStock y refresh
-def saveUsersStock2(msg,id):          
+def saveUsersStock(msg,id):          
     file = open("file.txt","a")
     if id not in file.read():
 
@@ -191,11 +191,6 @@ def saveUsersStock2(msg,id):
          file.close()
         
         
-def saveUsersStock(msg,id):
-    file = open("file.txt","a")
-    file.write(id + " " + msg + ", ")
-    file.close()
-
 def removeFile():
     file = open("file.txt","w")
     file.close()
@@ -234,15 +229,6 @@ def seccionarStock(msg):
 
     return seccion
 
-
-def refreshUsersStock(stock , id):
-    file = open("file.txt","r")
-    previous_stock = id + " " + getUsersStock(id)
-    replaced_bd = file.read().replace(previous_stock,stock)
-    file.close()
-    file = open("file.txt","w")
-    file.write(replaced_bd)
-    file.close()
 
 
 storage = "Storage (4337/4500): Artisan frame (1) Bauxite (3) Blacksmith frame (2) Blacksmith mold (2) Bone powder (2) Bone (17) Charcoal (4) Coal (16) Coke (28) Cord (26) Crafted leather (14) Leather (3)"
