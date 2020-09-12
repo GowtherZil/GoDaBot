@@ -174,6 +174,23 @@ def getUsersStock(id):
         indice = indice + 1    
     return stock_retorno
 
+
+#Combinando saveStock y refresh
+def saveUsersStock2(msg,id):          
+    file = open("file.txt","a")
+    if id not in file.read():
+
+        file.write(id + " " + msg + ", ")
+        file.close()
+    else:
+         previous_stock = id + " " + getUsersStock(id)
+         replaced_bd = file.read().replace(previous_stock,stock)
+         file.close()
+         file = open("file.txt","w")
+         file.write(replaced_bd)
+         file.close()
+        
+        
 def saveUsersStock(msg,id):
     file = open("file.txt","a")
     file.write(id + " " + msg + ", ")
