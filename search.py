@@ -1,7 +1,5 @@
 
-#rabo
-
-def GowPuta():
+def FinalTest()
     return 2
 
 def searchItem(item_name):
