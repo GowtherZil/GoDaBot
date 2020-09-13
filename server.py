@@ -308,7 +308,6 @@ def getUsersStock(id):
 def saveUsersStock(msg,id):          
     file = open("file.txt","a")
     if id not in file.read():
-
         file.write(id + " " + msg + ", ")
         file.close()
     else:

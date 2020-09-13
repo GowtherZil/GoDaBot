@@ -132,7 +132,7 @@ def search(to_search):
         "quality cloth" : "36",
         "36" : "quality cloth",
         "qc" : "36",
-        "blacksmith's mold":"37",
+        "blacksmiths mold":"37",
         "bm" : "37",
         "bs mold" : "37",
         "37" : "blacksmith's mold",
@@ -140,7 +140,7 @@ def search(to_search):
         "am" : "38",
         "38" : "artisan mold",
     }
-    return items_dic.get(item_name)
+    return items_dic.get(to_search)
 
 
 def seccionarMsg(msg):
@@ -158,7 +158,7 @@ def getUsersStock(id):
     msg = open("file.txt","r")
     msg = msg.read()
     indice_inicio = msg.index(id)
-    stock_temporal = msg[indice_inicio:len(msg)-1]
+    stock_temporal = msg[indice_inicio:len(msg)]  #Aki hubo un cambio no se xq
     indice_final = stock_temporal.index(",")
     stock_temporal = stock_temporal[0:indice_final]
     stock_temporal = stock_temporal.split()
@@ -173,15 +173,17 @@ def getUsersStock(id):
 
 #Combinando saveStock y refresh
 def saveUsersStock(msg,id):          
-    file = open("file.txt","a")
-    if id not in file.read():
-
+    file = open("file.txt","r")
+    allStocks = file.read()
+    file.close()
+    if id not in allStocks:
+        file = open("file.txt","a")
         file.write(id + " " + msg + ", ")
         file.close()
     else:
+         stock = id + " " + msg
          previous_stock = id + " " + getUsersStock(id)
-         replaced_bd = file.read().replace(previous_stock,stock)
-         file.close()
+         replaced_bd = allStocks.replace(previous_stock,stock)
          file = open("file.txt","w")
          file.write(replaced_bd)
          file.close()
@@ -196,13 +198,13 @@ def seccionarStock(msg):
     seccion = ""
     c = 2
     text = msg.split()
-#en este caso no c han usado los gnomos
+    #en este caso no c han usado los gnomos
     if "/sg_" in msg:
         text = msg.replace("📦Storage (4133/4500): Use /sg_{code} to trade some amount of resource for 1💰/pcs","").split()
         contador = 0
         for x in text:
             if "/sg_" in x:
-                 seccion = seccion + text[contador][4:len(text)-1] + " "
+                 seccion = seccion + "i-" + text[contador][4:len(text[contador])] + " "
             if "(" in x:
                  h = text[contador][1:len(text[contador])-1]
                  seccion = seccion + h + " "   
@@ -216,18 +218,46 @@ def seccionarStock(msg):
             elif not ("(" in text[c]) and not("(" in text[c+1]):
                 compuesta = ""
                 compuesta = text[c] + " " + text[c+1]
-                seccion = seccion + searchItem(compuesta) + " " #este GetCode de aki es el metodo q tenias q implementar y lo mismo d arriba con la c
+                seccion = seccion + "i-" + searchItem(compuesta) + " " #este GetCode de aki es el metodo q tenias q implementar y lo mismo d arriba con la c
                 c = c+1
             else:
-                seccion = seccion + searchItem(text[c]) + " "
+                seccion = seccion + "i-" + searchItem(text[c]) + " "
             
             c = c+1
 
     return seccion
 
 
+def sendSellCodes(id,msg):
+    stock = getUsersStock(id)
+    stock = stock.split()
+    selling = msg.split()
+    item_qtt = selling[1]
+    item_price = selling[len(selling)-1]
+    if len(selling) == 5:
+        item_code = search(selling[2])
+    else:
+        item_code = search("{} {}".format(selling[2] , selling[3]))
+    item_qtt_index = stock.index("i-"+item_code)+1
+    qtt = stock[item_qtt_index] 
+    qtt = int(qtt) - int(item_qtt)
+    if qtt >= 0:
+        stock[item_qtt_index] = qtt
+        index = 0
+        stock2save = ""
+        for x in stock:
+            stock2save = stock2save + "{}".format(stock[index]) + " "
+            index = index+1
+        saveUsersStock(stock2save,id)
+        print("/wts_"+item_code +"_"+item_qtt+"_"+item_price)
+    else:
+        print("Usted no tiene la cantidad necesaria de {}".format(search(item_code)))       
+    
 
-storage = "Storage (4337/4500): Artisan frame (1) Bauxite (3) Blacksmith frame (2) Blacksmith mold (2) Bone powder (2) Bone (17) Charcoal (4) Coal (16) Coke (28) Cord (26) Crafted leather (14) Leather (3)"
+storage = "📦Storage (4337/4500): Artisan frame (1) Bauxite (3) Blacksmith frame (2) Blacksmith mold (2) Bone powder (2) Bone (17) Charcoal (4) Coal (16) Coke (28) Cord (26) Crafted leather (14) Leather (3)"
 storage_con_sg = "📦Storage (4133/4500): Use /sg_{code} to trade some amount of resource for 1💰/pcs /sg_30 Artisan frame (1) /sg_11 Bauxite (3) /sg_29 Blacksmith frame (1) /sg_37 Blacksmith mold (2) /sg_21 Bone powder (2) /sg_04 Bone (15) /sg_06 Charcoal (5) /sg_09 Cloth (1) /sg_05 Coal (16) /sg_12 Cord (25) /sg_35 Crafted leather (8) /sg_08 Iron ore (2) /sg_20 Leather (4) /sg_33 Metal plate (5)"
+# "Vende 25 ms a 5"
 
-print(seccionarStock(storage_con_sg))
+sendSellCodes("patata","Vende 2 bm a 20")
+
+
