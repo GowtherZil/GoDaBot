@@ -175,16 +175,16 @@ def getUsersStock(id):
 def saveUsersStock(msg,id):          
     file = open("file.txt","r")
     allStocks = file.read()
-    file.close()
+    file.close()    # cerrando el fichero
     if id not in allStocks:
-        file = open("file.txt","a")
+        file = open("file.txt","a")   # agregando al final del archivo
         file.write(id + " " + msg + ", ")
         file.close()
     else:
          stock = id + " " + msg
          previous_stock = id + " " + getUsersStock(id)
          replaced_bd = allStocks.replace(previous_stock,stock)
-         file = open("file.txt","w")
+         file = open("file.txt","w")  # sobreescribiendo el archivo desde 0
          file.write(replaced_bd)
          file.close()
         
@@ -228,20 +228,20 @@ def seccionarStock(msg):
     return seccion
 
 
-def sendSellCodes(id,msg):
+def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devolver "/wts_13_20_18"
     stock = getUsersStock(id)
     stock = stock.split()
     selling = msg.split()
     item_qtt = selling[1]
     item_price = selling[len(selling)-1]
-    if len(selling) == 5:
+    if len(selling) == 5:   #en caso de q el nombre sea unico
         item_code = search(selling[2])
     else:
-        item_code = search("{} {}".format(selling[2] , selling[3]))
+        item_code = search("{} {}".format(selling[2] , selling[3])) # en caso de que el nombre sea compuesto
     item_qtt_index = stock.index("i-"+item_code)+1
     qtt = stock[item_qtt_index] 
     qtt = int(qtt) - int(item_qtt)
-    if qtt >= 0:
+    if qtt >= 0:  #si al actualizar la cantidad del item en el stock del usuario da 0 o mas:
         stock[item_qtt_index] = qtt
         index = 0
         stock2save = ""
@@ -250,14 +250,12 @@ def sendSellCodes(id,msg):
             index = index+1
         saveUsersStock(stock2save,id)
         print("/wts_"+item_code +"_"+item_qtt+"_"+item_price)
-    else:
+    else: #si da negativo tonces:
         print("Usted no tiene la cantidad necesaria de {}".format(search(item_code)))       
     
 
 storage = "📦Storage (4337/4500): Artisan frame (1) Bauxite (3) Blacksmith frame (2) Blacksmith mold (2) Bone powder (2) Bone (17) Charcoal (4) Coal (16) Coke (28) Cord (26) Crafted leather (14) Leather (3)"
 storage_con_sg = "📦Storage (4133/4500): Use /sg_{code} to trade some amount of resource for 1💰/pcs /sg_30 Artisan frame (1) /sg_11 Bauxite (3) /sg_29 Blacksmith frame (1) /sg_37 Blacksmith mold (2) /sg_21 Bone powder (2) /sg_04 Bone (15) /sg_06 Charcoal (5) /sg_09 Cloth (1) /sg_05 Coal (16) /sg_12 Cord (25) /sg_35 Crafted leather (8) /sg_08 Iron ore (2) /sg_20 Leather (4) /sg_33 Metal plate (5)"
-# "Vende 25 ms a 5"
 
-sendSellCodes("patata","Vende 2 bm a 20")
 
 
