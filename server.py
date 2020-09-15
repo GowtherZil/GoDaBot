@@ -1,12 +1,16 @@
+# Cosillas a hacer:
+# - arreglar el seccionar Stock
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot("TOKEN DEL BOT")
+bot = telebot.TeleBot("Token Del Bot Aki")
 
-listaPermitidos=[ids_de_la_gente]       #Usuarios a los que el bot respondera en pv
+listaPermitidos=[lista de usuarios permitidos]
 
-listaGruposPermitidos = [-id_del_Grupo]  #Grupos en los que el bot funcionara
+listaGruposPermitidos = [lista de grupos permitidos]
 
+
+usuarito = el Mine
                                                 #Metodos del withdraw
 def pincha(msg, who,user,message):
     banned = True
@@ -272,7 +276,7 @@ def search(to_search):
         "am" : "38",
         "38" : "artisan mold",
     }
-    return items_dic.get(item_name)
+    return items_dic.get(to_search)
 
 
 # def seccionarMsg(msg):
@@ -290,7 +294,7 @@ def search(to_search):
 def getUsersStock(id):
     msg = open("file.txt","r")
     msg = msg.read()
-    indice_inicio = msg.index(id)
+    indice_inicio = msg.index(str(id))
     stock_temporal = msg[indice_inicio:len(msg)-1]
     indice_final = stock_temporal.index(",")
     stock_temporal = stock_temporal[0:indice_final]
@@ -300,26 +304,40 @@ def getUsersStock(id):
     for x in stock_temporal:
         if indice != 0:
             stock_retorno = stock_retorno + stock_temporal[indice] + " "
-        indice = indice + 1    
+        indice = indice + 1
     return stock_retorno
 
 
-#Combinando saveStock y refresh, si el stock existe lo actualiza, si no, lo guarda
-def saveUsersStock(msg,id):          
-    file = open("file.txt","a")
-    if id not in file.read():
-        file.write(id + " " + msg + ", ")
+#Combinando saveStock y refresh
+def saveUsersStock(msg,id):
+    try:
+        file = open("file.txt","r")
+        allStocks = file.read()
+        file.close()    # cerrando el fichero
+    except:
+        file = open("file.txt","w")
+        file.close()
+        file = open("file.txt","r")
+        allStocks = file.read()
+        file.close()
+    if str(id) not in allStocks:
+        file = open("file.txt","a")   # agregando al final del archivo
+        file.write(str(id) + " " + msg + ", ")
         file.close()
     else:
-         previous_stock = id + " " + getUsersStock(id)
-         replaced_bd = file.read().replace(previous_stock,stock)
-         file.close()
-         file = open("file.txt","w")
+         stock = str(id) + " " + msg
+         previous_stock = str(id) + " " + getUsersStock(id)
+         replaced_bd = allStocks.replace(previous_stock,stock)
+         file = open("file.txt","w")  # sobreescribiendo el archivo desde 0
          file.write(replaced_bd)
          file.close()
-        
 
-#Devuelve el stock en parejas de codigo cantidad
+
+def removeFile():
+    file = open("file.txt","w")
+    file.close()
+
+
 def seccionarStock(msg):
     seccion = ""
     c = 2
@@ -330,28 +348,54 @@ def seccionarStock(msg):
         contador = 0
         for x in text:
             if "/sg_" in x:
-                 seccion = seccion + text[contador][4:len(text)-1] + " "
+                 seccion = seccion + "i-" + text[contador][4:len(text[contador])] + " "
             if "(" in x:
                  h = text[contador][1:len(text[contador])-1]
-                 seccion = seccion + h + " "   
+                 seccion = seccion + h + " "
             contador = contador + 1
-            
+
     else:
         while c < len(text):
             if "(" in text[c]:
-                h = text[c][1:len(text[c])-1] # h = todo entre parentesis 
-                seccion = seccion + h + " "  
+                h = text[c][1:len(text[c])-1] # h = todo entre parentesis
+                seccion = seccion + h + " "
             elif not ("(" in text[c]) and not("(" in text[c+1]):
                 compuesta = ""
                 compuesta = text[c] + " " + text[c+1]
-                seccion = seccion + searchItem(compuesta) + " " #este GetCode de aki es el metodo q tenias q implementar y lo mismo d arriba con la c
+                seccion = seccion + "i-" + searchItem(compuesta) + " " #este GetCode de aki es el metodo q tenias q implementar y lo mismo d arriba con la c
                 c = c+1
             else:
-                seccion = seccion + searchItem(text[c]) + " "
-            
+                seccion = seccion + "i-" + searchItem(text[c]) + " "
+
             c = c+1
 
     return seccion
+
+
+def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devolver "/wts_13_20_18"
+    stock = getUsersStock(id)
+    stock = stock.split()
+    selling = msg.split()
+    item_qtt = selling[1]
+    item_price = selling[len(selling)-1]
+    if len(selling) == 5:   #en caso de q el nombre sea unico
+        item_code = search(selling[2])
+    else:
+        item_code = search("{} {}".format(selling[2] , selling[3])) # en caso de que el nombre sea compuesto
+    item_qtt_index = stock.index("i-"+item_code)+1
+    qtt = stock[item_qtt_index]
+    qtt = int(qtt) - int(item_qtt)
+    if qtt >= 0:  #si al actualizar la cantidad del item en el stock del usuario da 0 o mas:
+        stock[item_qtt_index] = qtt
+        index = 0
+        stock2save = ""
+        for x in stock:
+            stock2save = stock2save + "{}".format(stock[index]) + " "
+            index = index+1
+        saveUsersStock(stock2save,id)
+        bot.send_message(id,"/wts_"+item_code +"_"+item_qtt+"_"+item_price)
+    else: #si da negativo tonces:
+        bot.send_message(id,"Usted no tiene la cantidad necesaria de {}".format(search(item_code)))
 
 
 #Creando botonera
@@ -380,7 +424,7 @@ def stop_keyboard(message):
 
 @bot.message_handler(commands=['feedback'])
 def send_feed(message):
-   bot.send_message(usuarito, message.text)    
+   bot.send_message(usuarito, message.text)
 
 @bot.message_handler(commands=['work'])
 def workOnChat(message):
@@ -420,6 +464,8 @@ def echo_all(message):
         pincha(message.text,message.from_user.id,message.from_user.username,message)
         sent = 1
 
+    if("Esconde" in message.text):
+        sendSellCodes(message.from_user.id , message.text)
 
     else:
         if(sent == 0):
@@ -433,4 +479,4 @@ def echo_all(message):
 #Correr el bot
 bot.polling()
 
-# if message.chat.type == "group":
+# if message.chat.type == "group"
