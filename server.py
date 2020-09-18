@@ -371,7 +371,44 @@ def seccionarStock(msg):
 
     return seccion
 
+def hideShit(id,msg): # Recive un string de la forma "hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
+    stock = getUsersStock(id)
+    stock = stock.split()
+    hide = SeccionarHide(msg)
+    comandos = ""
+    c = 0
 
+    for x in hide:
+        while c < len(stock):
+            if stock[c] == x:
+                comandos = comandos + "/wts_" + stock[c] + "_" + stock[c+1] + "_1000" + " " 
+            c = c+2
+
+    comandos = comandos.split()
+
+    for x in comandos:
+        bot.send_message(message.from_user.id, x)
+
+
+def SeccionarHide(msg):  # TALLA AKI : Este parece tar en talla
+    seccion = ""
+    text = msg.split()
+    c = 0
+    while c < len(text):
+        if (text[c] != "Hide" or text[c] != "hide"):
+            if text[c].isnumeric() == False:
+                if text[c].lower == "silver" or text[c].lower == "iron" or text[c].lower == "magic" or text[c].lower == "metal" or ((text[c].lower == "bone") and (text[c+1].lower == "powder")):
+                    seccion = seccion + GetCode(text[c] + " " + text[c+1]) + " "
+                    c = c+2
+                else:
+                    seccion = seccion + GetCode(text[c]) + " "
+                    c = c+1
+            else:
+                seccion = seccion + text[c] + " "
+                c = c+1
+
+    return seccion
+  
 def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devolver "/wts_13_20_18"
     stock = getUsersStock(id)
     stock = stock.split()
@@ -466,6 +503,10 @@ def echo_all(message):
 
     if("Esconde" in message.text):
         sendSellCodes(message.from_user.id , message.text)
+        
+    if("Hide" in message.text):
+        hideShit(message.from_user.id , message.text)
+        sent = 1
 
     else:
         if(sent == 0):
