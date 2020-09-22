@@ -1,16 +1,11 @@
-# Cosillas a hacer:
-# - arreglar el seccionar Stock
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot("Token Del Bot Aki")
+bot = telebot.TeleBot("el token de la api aki")
 
-listaPermitidos=[lista de usuarios permitidos]
+listaPermitidos=[ usuarios permitidos en el bot]
+listaGruposPermitidos = [grupos permitidos en el bot]
 
-listaGruposPermitidos = [lista de grupos permitidos]
-
-
-usuarito = el Mine
                                                 #Metodos del withdraw
 def pincha(msg, who,user,message):
     banned = True
@@ -186,7 +181,7 @@ def searchItem(item_name):
     return items_dic.get(item_name)
 
 #Devuelve el item dado el codigo y viceversa. Checkear los items
-def search(to_search):
+def GetCode(to_search):
     items_dic ={
         "thread" : "01",
         "01" : "thread",
@@ -205,11 +200,11 @@ def search(to_search):
         "06" : "charcoal",
         "powder" :  "07",
         "07" : "powder",
-        "iron Ore" : "08",
+        "iron ore" : "08",
         "08" : "iron ore",
         "cloth" : "09",
         "09" : "cloth",
-        "silver Ore" : "10",
+        "silver ore" : "10",
         "10" : "silver ore",
         "bauxite" : "11",
         "11" : "bauxite",
@@ -246,8 +241,8 @@ def search(to_search):
         "steel mold" : "27",
         "sm" : "27",
         "27" : "steel mold",
-        "blacksmith's frame" : "28",
-        "28" : "blacksmith's frame",
+        "blacksmith frame" : "28",
+        "28" : "blacksmith frame",
         "bs frame" : "28",
         "rope" : "29",
         "29" : "rope",
@@ -268,15 +263,16 @@ def search(to_search):
         "quality cloth" : "36",
         "36" : "quality cloth",
         "qc" : "36",
-        "blacksmith's mold":"37",
+        "blacksmith mold":"37",
         "bm" : "37",
         "bs mold" : "37",
-        "37" : "blacksmith's mold",
+        "37" : "blacksmith mold",
         "artisan mold" : "38",
         "am" : "38",
         "38" : "artisan mold",
     }
-    return items_dic.get(to_search)
+    return items_dic.get(searchItem)
+
 
 
 # def seccionarMsg(msg):
@@ -295,7 +291,7 @@ def getUsersStock(id):
     msg = open("file.txt","r")
     msg = msg.read()
     indice_inicio = msg.index(str(id))
-    stock_temporal = msg[indice_inicio:len(msg)-1]
+    stock_temporal = msg[indice_inicio:len(msg)]
     indice_final = stock_temporal.index(",")
     stock_temporal = stock_temporal[0:indice_final]
     stock_temporal = stock_temporal.split()
@@ -325,12 +321,16 @@ def saveUsersStock(msg,id):
         file.write(str(id) + " " + msg + ", ")
         file.close()
     else:
-         stock = str(id) + " " + msg
-         previous_stock = str(id) + " " + getUsersStock(id)
-         replaced_bd = allStocks.replace(previous_stock,stock)
-         file = open("file.txt","w")  # sobreescribiendo el archivo desde 0
-         file.write(replaced_bd)
-         file.close()
+        try:
+            stock = str(id) + " " + msg
+            previous_stock = str(id) + " " + getUsersStock(id)
+            replaced_bd = allStocks.replace(previous_stock,stock)
+            file = open("file.txt","w")  # sobreescribiendo el archivo desde 0
+            file.write(replaced_bd)
+            file.close()
+        except:
+            print("Excepcion leyendo , lineas 312-337 , saveUserStock")
+            bot.send_message(id,"No pude completar la operacion")
 
 
 def removeFile():
@@ -339,21 +339,22 @@ def removeFile():
 
 
 def seccionarStock(msg):
+    print("Entrando al metodo seccionarStock")
     seccion = ""
     c = 2
     text = msg.split()
+    print(text)
     #en este caso no c han usado los gnomos
     if "/sg_" in msg:
-        text = msg.replace("📦Storage (4133/4500): Use /sg_{code} to trade some amount of resource for 1💰/pcs","").split()
+        text = text[12:len(text)]
         contador = 0
         for x in text:
             if "/sg_" in x:
-                 seccion = seccion + "i-" + text[contador][4:len(text[contador])] + " "
+                 seccion = seccion + text[contador][4:len(text[contador])] + " "
             if "(" in x:
                  h = text[contador][1:len(text[contador])-1]
                  seccion = seccion + h + " "
             contador = contador + 1
-
     else:
         while c < len(text):
             if "(" in text[c]:
@@ -362,10 +363,17 @@ def seccionarStock(msg):
             elif not ("(" in text[c]) and not("(" in text[c+1]):
                 compuesta = ""
                 compuesta = text[c] + " " + text[c+1]
-                seccion = seccion + "i-" + searchItem(compuesta) + " " #este GetCode de aki es el metodo q tenias q implementar y lo mismo d arriba con la c
+                print("")
+                print("")
+                print("")
+                print(compuesta.lower())
+                print("")
+                print("")
+                print("")
+                seccion = seccion + GetCode(compuesta.lower()) + " " #este GetCode de aki es el metodo q tenias q implementar y lo mismo d arriba con la c
                 c = c+1
             else:
-                seccion = seccion + "i-" + searchItem(text[c]) + " "
+                seccion = seccion + GetCode(text[c].lower()) + " "
 
             c = c+1
 
@@ -373,42 +381,56 @@ def seccionarStock(msg):
 
 def hideShit(id,msg): # Recive un string de la forma "hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
     stock = getUsersStock(id)
+    print("stock = " + stock)
     stock = stock.split()
     hide = SeccionarHide(msg)
+    print("hide = " + hide)
+    hide = hide.split()
     comandos = ""
-    c = 0
-
-    for x in hide:
+    d = 0
+    while d < len(hide):
+        c = 0
         while c < len(stock):
-            if stock[c] == x:
-                comandos = comandos + "/wts_" + stock[c] + "_" + stock[c+1] + "_1000" + " " 
+            if stock[c] == hide[d]:
+                comandos = comandos + "/wts_" + stock[c] + "_" + stock[c+1] + "_1000" + " "
             c = c+2
-
+        d = d+1
+    print("comandos : " + comandos)
     comandos = comandos.split()
-
     for x in comandos:
-        bot.send_message(message.from_user.id, x)
+        bot.send_message(id, x)
 
 
 def SeccionarHide(msg):  # TALLA AKI : Este parece tar en talla
+    print("Entrando a Seccionar Hide")
     seccion = ""
     text = msg.split()
-    c = 0
+    print( "Text:")
+    print(text)
+    print(" " )
+    c = 1
     while c < len(text):
         if (text[c] != "Hide" or text[c] != "hide"):
+            print("Longitud = " + str(len(text)))
             if text[c].isnumeric() == False:
-                if text[c].lower == "silver" or text[c].lower == "iron" or text[c].lower == "magic" or text[c].lower == "metal" or ((text[c].lower == "bone") and (text[c+1].lower == "powder")):
-                    seccion = seccion + GetCode(text[c] + " " + text[c+1]) + " "
+                if c+1>len(text) and (text[c].lower() == "silver" or text[c].lower() == "iron" or text[c].lower() == "magic" or text[c].lower() == "metal" or ((text[c].lower() == "bone") and (text[c+1].lower() == "powder"))):
+                    codigo = GetCode(str(text[c]) + " " + str(text[c+1]))
+                    seccion = seccion + codigo + " "
                     c = c+2
                 else:
-                    seccion = seccion + GetCode(text[c]) + " "
+                    print("Item:")
+                    print(str(text[c]))
+                    textito = GetCode(str(text[c]))
+                    print(textito)
+                    if (textito != None):
+                        seccion = seccion + GetCode(str(text[c])) + " "
                     c = c+1
             else:
-                seccion = seccion + text[c] + " "
+                seccion = seccion + str(text[c]) + " "
                 c = c+1
 
     return seccion
-  
+
 def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devolver "/wts_13_20_18"
     stock = getUsersStock(id)
     stock = stock.split()
@@ -416,9 +438,9 @@ def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devo
     item_qtt = selling[1]
     item_price = selling[len(selling)-1]
     if len(selling) == 5:   #en caso de q el nombre sea unico
-        item_code = search(selling[2])
+        item_code = GetCode(selling[2])
     else:
-        item_code = search("{} {}".format(selling[2] , selling[3])) # en caso de que el nombre sea compuesto
+        item_code = GetCode("{} {}".format(selling[2] , selling[3])) # en caso de que el nombre sea compuesto
     item_qtt_index = stock.index("i-"+item_code)+1
     qtt = stock[item_qtt_index]
     qtt = int(qtt) - int(item_qtt)
@@ -432,7 +454,7 @@ def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devo
         saveUsersStock(stock2save,id)
         bot.send_message(id,"/wts_"+item_code +"_"+item_qtt+"_"+item_price)
     else: #si da negativo tonces:
-        bot.send_message(id,"Usted no tiene la cantidad necesaria de {}".format(search(item_code)))
+        bot.send_message(id,"Usted no tiene la cantidad necesaria de {}".format(GetCode(item_code)))
 
 
 #Creando botonera
@@ -480,38 +502,49 @@ def workOnChat(message):
 def echo_all(message):
     sent = 0
     if(message.text == "Start"):
-        bot.send_message(message.from_user.id, "Hola! Bienvenido al bot para esconder recursos de forma rapida!" , reply_markup=markup)
+        bot.send_message(message.from_user.id, "Hola humano, mi nombre es Glados... Si te pierdes y no sabes como acceder a mis funciones preciona el boton de ayuda ahi abajo." , reply_markup=markup)
         sent = 1
     if(message.text == "Ayuda" and sent==0):
-        bot.send_message(message.from_user.id, "Yo! Enviame el /g_stock_res para aca y te dare los withdraws de forma automatica, te parece?" , reply_markup=markup)
+        bot.send_message(message.from_user.id, "Oh... vaya, en serio? Bueno, dada tu evidente incompetencia supongo q tendre q explicarte como utilizarme... justo cuando pense que el trabajo de un bot no podia ser mas humillante. Bueno esto es lo que debes saber: Antes de realizar cualquier funcion conmigo debes reenviarme tu stock para poder actualizarlo... no me mires asi, mis desarrolladores fueron demasiado holgazanes para intentar conseguir la API de CW, no es mi culpa. Bien luego de hacer eso tienes las siguientes herramientas a tu dispocision: hide [item] [item] ... El item puede ser tanto el nombre como el codigo del articulo. Al usar ese comando t devolvere las ordenes de venta para el exchange para cada uno de los items con su cantidad max en tu stock." , reply_markup=markup)
         sent = 1
     if(message.text == "Usuarios" and sent==0 ):
-        bot.send_message(message.from_user.id, "Actualmente hay {usuarios} usuarios usando este bot".format(usuarios= len(listaPermitidos)) , reply_markup=markup)
+        bot.send_message(message.from_user.id, "Actualmente hay {usuarios} usuarios desperdiciando mi preciado CPU".format(usuarios= len(listaPermitidos)) , reply_markup=markup)
         sent = 1
 
     if(message.text == "Feedback" and sent==0 ):
-        bot.send_message(message.from_user.id, "Hey! Si tienes alguna queja o sugerencia , agregale /feedback delante y enviamela para saber tu opinion".format(usuarios= len(listaPermitidos)) , reply_markup=markup)
+        bot.send_message(message.from_user.id, "Tienes algun problema con mi funcionamiento? Yo tengo serias reservas con el funcionamiento de los humanos y no t doy la brasa... just saying. Pero bueno, mis desarrolladores me dijeron q debia ser amable... si lo has adivinado... por desgracia tambien son humanos. Para dejar una queja o sugerencia agregale /feedback delante y enviamela para que puedan 'corregirme'... ".format(usuarios= len(listaPermitidos)) , reply_markup=markup)
         sent = 1
 
-    if("📦Storage" in message.text):
+    # if("📦Storage" in message.text and message.from_user.id in listaPermitidos):
+    #     saveUsersStock(seccionarStock(message.text),message.from_user.id)
+    #     bot.send_message(message.from_user.id , "Stock actualizado satisfactoriamente")
+
+    if("📦Storage" in message.text and message.from_user.id in listaPermitidos):
         saveUsersStock(seccionarStock(message.text),message.from_user.id)
         bot.send_message(message.from_user.id , "Stock actualizado satisfactoriamente")
 
-    if("Guild Warehouse" in message.text):
+    elif("📦Storage" in message.text and message.from_user.id not in listaPermitidos):
+        bot.send_message(usuarito, "Me escribio el usuario @{}".format(message.from_user.username))
+
+    if("Guild Warehouse" in message.text and message.from_user.id in listaPermitidos):
         pincha(message.text,message.from_user.id,message.from_user.username,message)
         sent = 1
 
-    if("Esconde" in message.text):
-        sendSellCodes(message.from_user.id , message.text)
-        
-    if("Hide" in message.text):
+    elif("Guild Warehouse" in message.text and message.from_user.id not in listaPermitidos):
+        bot.send_message(usuarito,"Me escribio el usuario @{}".format(message.from_user.username))
+    # if("Esconde" in message.text):
+    #     sendSellCodes(message.from_user.id , message.text)
+
+    if("Hide" in message.text or "hide" in message.text and message.from_user.id in listaPermitidos):
         hideShit(message.from_user.id , message.text)
         sent = 1
+    elif("Hide" in message.text or "hide" in message.text and message.from_user.id not in listaPermitidos):
+        bot.send_message(usuarito, "Me escribio el usuario @{}".format(message.from_user.username))
 
-    else:
-        if(sent == 0):
-            # bot.send_message(message.from_user.id,message.text)
-            pass
+    # else:
+    #     if(sent == 0):
+    #         # bot.send_message(message.from_user.id,message.text)
+    #         pass
 
 
 
