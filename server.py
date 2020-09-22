@@ -271,7 +271,10 @@ def GetCode(to_search):
         "am" : "38",
         "38" : "artisan mold",
     }
-    return items_dic.get(searchItem)
+    if items_dic.get(to_search) == None:
+      error = "ERROR"
+    else:
+      return items_dic.get(to_search)
 
 
 
@@ -418,10 +421,6 @@ def SeccionarHide(msg):  # TALLA AKI : Este parece tar en talla
                     seccion = seccion + codigo + " "
                     c = c+2
                 else:
-                    print("Item:")
-                    print(str(text[c]))
-                    textito = GetCode(str(text[c]))
-                    print(textito)
                     if (textito != None):
                         seccion = seccion + GetCode(str(text[c])) + " "
                     c = c+1
