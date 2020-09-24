@@ -381,7 +381,30 @@ def seccionarStock(msg):
             c = c+1
 
     return seccion
+#recuerda annadir el handler para esto... lo q me dijiste de los comandos
+def hideShitonGuild(id,msg): # Recive un string de la forma "g_hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
+    stock = getUsersStock(id)
+    stock = stock.split()
+    hide = SeccionarHide(msg)
+    comandos = ""
 
+    d = 0
+
+    while d < len(hide):
+        c = 0
+        while c < len(stock):
+            if stock[c] == hide[d]:
+                comandos = comandos + "/g_deposit " + stock[c] + " " + stock[c+1] + " " 
+            c = c+2
+
+        d = d+1
+
+    comandos = comandos.split()
+
+    for x in comandos:
+        bot.send_message(message.from_user.id, x)
+  
+  
 def hideShit(id,msg): # Recive un string de la forma "hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
     stock = getUsersStock(id)
     print("stock = " + stock)
