@@ -1,11 +1,15 @@
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot("el token de la api aki")
+bot = telebot.TeleBot("El token papu")
 
-listaPermitidos=[ usuarios permitidos en el bot]
-listaGruposPermitidos = [grupos permitidos en el bot]
+listaPermitidos=[lista de usuarios permitidos]
 
+listaGruposPermitidos = [lista de grupos permitidos]
+
+
+usuarito = el sexy
+usuaritin = el sexy ^ 2
                                                 #Metodos del withdraw
 def pincha(msg, who,user,message):
     banned = True
@@ -241,20 +245,22 @@ def GetCode(to_search):
         "steel mold" : "27",
         "sm" : "27",
         "27" : "steel mold",
-        "blacksmith frame" : "28",
-        "28" : "blacksmith frame",
-        "bs frame" : "28",
-        "rope" : "29",
-        "29" : "rope",
+        "silver mold" : "28",
+        "28" : "silver mold",
+        "blacksmith frame" : "29",
+        "29" : "blacksmith frame",
+        "bs frame" : "29",
         "artisan frame" : "30",
         "af" : "30",
         "30" : "artisan frame",
-        "metal plate" : "31",
-        "31" : "metal plate",
-        "metal" : "31",
+        "rope" : "31",
+        "31" : "rope",
         "silver frame" : "32",
         "sf" : "32",
         "32" : "silver frame",
+        "metal plate" : "33",
+        "33" : "metal plate",
+        "metal" : "33",
         "metallic fiber":"34",
         "34" : "mettalic fiber",
         "mf" : "34",
@@ -272,10 +278,9 @@ def GetCode(to_search):
         "38" : "artisan mold",
     }
     if items_dic.get(to_search) == None:
-      error = "ERROR"
+      pass
     else:
       return items_dic.get(to_search)
-
 
 
 # def seccionarMsg(msg):
@@ -381,35 +386,60 @@ def seccionarStock(msg):
             c = c+1
 
     return seccion
-#recuerda annadir el handler para esto... lo q me dijiste de los comandos
-def hideShitonGuild(id,msg): # Recive un string de la forma "g_hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
-    stock = getUsersStock(id)
-    stock = stock.split()
-    hide = SeccionarHide(msg)
-    comandos = ""
 
-    d = 0
+def SeccionarHide(id,msg):  # TALLA AKI : Este parece tar en talla
+    print("Entrando a Seccionar Hide")
+    seccion = ""
+    text = msg.split()
+    print( "Text:")
+    print(text)
+    print(" " )
+    c = 1
+    while c < len(text):
+        if (text[c] != "Hide" or text[c] != "hide"):
+            print("Longitud = " + str(len(text)))
+            if text[c].isnumeric() == False:
+                if  (text[c].lower() == "silver" or text[c].lower() == "iron" or text[c].lower() == "wooden" or text[c].lower() == "artisan" or text[c].lower() == "magic" or text[c].lower() == "metal" or ((text[c].lower() == "bone") and (text[c+1].lower() == "powder"))):
+                    try:
+                        print("Buscando la compuesta : " + str(text[c]) + " " + str(text[c+1]))
+                        codigo = GetCode(str(text[c]) + " " + str(text[c+1]))
+                        seccion = seccion + codigo + " "
+                    except:
+                        print("Compuesta incompleta")
+                        bot.send_message(id,"Comenzando simulación humorística de bullying..... JA JA JA JA JA JA JA JA. Humano, si no es mucho pedirle a su bajo intelecto, verifique que introdujo correctamente todos los nombres y porfavor, trate de respirar mientras lo hace , es vital para su salud")
 
-    while d < len(hide):
-        c = 0
-        while c < len(stock):
-            if stock[c] == hide[d]:
-                comandos = comandos + "/g_deposit " + stock[c] + " " + stock[c+1] + " " 
-            c = c+2
+                    if c+2 < len(text):
+                        try:
+                            codigo = GetCode(str(text[c+1]) + " " + str(text[c+2]))
+                            seccion = seccion + codigo + " "
+                        except:
+                            print("Compuesta incompleta y problemas con items despues de esta")
+                    else:
+                        try:
+                            codigo = GetCode(str(text[c+1]))
+                            seccion = seccion + codigo + " "
+                        except:
+                            print("Compuesta incompleta y problemas con items despues de esta")
+                    c = c+2
+                else:
+                    print("Item:")
+                    print(str(text[c]))
+                    textito = GetCode(str(text[c]))
+                    print(textito)
+                    if (textito != None):
+                        seccion = seccion + GetCode(str(text[c])) + " "
+                    c = c+1
+            else:
+                seccion = seccion + str(text[c]) + " "
+                c = c+1
 
-        d = d+1
+    return seccion
 
-    comandos = comandos.split()
-
-    for x in comandos:
-        bot.send_message(message.from_user.id, x)
-  
-  
-def hideShit(id,msg): # Recive un string de la forma "hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
+def hideShit(id,msg): # Recibe un string de la forma "hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
     stock = getUsersStock(id)
     print("stock = " + stock)
     stock = stock.split()
-    hide = SeccionarHide(msg)
+    hide = SeccionarHide(id,msg)
     print("hide = " + hide)
     hide = hide.split()
     comandos = ""
@@ -427,31 +457,36 @@ def hideShit(id,msg): # Recive un string de la forma "hide ms 01 powder pelt Iro
         bot.send_message(id, x)
 
 
-def SeccionarHide(msg):  # TALLA AKI : Este parece tar en talla
-    print("Entrando a Seccionar Hide")
-    seccion = ""
-    text = msg.split()
-    print( "Text:")
-    print(text)
-    print(" " )
-    c = 1
-    while c < len(text):
-        if (text[c] != "Hide" or text[c] != "hide"):
-            print("Longitud = " + str(len(text)))
-            if text[c].isnumeric() == False:
-                if c+1>len(text) and (text[c].lower() == "silver" or text[c].lower() == "iron" or text[c].lower() == "magic" or text[c].lower() == "metal" or ((text[c].lower() == "bone") and (text[c+1].lower() == "powder"))):
-                    codigo = GetCode(str(text[c]) + " " + str(text[c+1]))
-                    seccion = seccion + codigo + " "
-                    c = c+2
-                else:
-                    if (textito != None):
-                        seccion = seccion + GetCode(str(text[c])) + " "
-                    c = c+1
-            else:
-                seccion = seccion + str(text[c]) + " "
-                c = c+1
 
-    return seccion
+
+#recuerda annadir el handler para esto... lo q me dijiste de los comandos
+def hideShitonGuild(id,msg): # Recive un string de la forma "g_hide ms 01 powder pelt Iron ore" y devuelve todos los comandos para esconder "/wts_13_cant en stock_1000" etc etc
+    print("Entrando a hideShitonGuild")
+    stock = getUsersStock(id)
+    stock = stock.split()
+    hide = SeccionarHide(id,msg)
+    print("Stock:")
+    print(stock)
+    print("")
+    print("Hide:" + hide)
+    hide = hide.split()
+    comandos = [""]
+    d = 0
+    while d < len(hide):
+        c = 0
+        while c < len(stock):
+            if stock[c] == hide[d]:
+                comandos.append("/g_deposit " + stock[c] + " " + stock[c+1] + " ")
+            c = c+2
+        d = d+1
+    print("Comandos:")
+    print(comandos)
+    # print("Comandos:" + comandos)
+    # comandos = comandos.split()
+    z = 1
+    while z != len(comandos):
+        bot.send_message(id, comandos[z])
+        z = z+1
 
 def sendSellCodes(id,msg):  # Recibe un string como "Vende 20 ms a 18" para devolver "/wts_13_20_18"
     stock = getUsersStock(id)
@@ -505,7 +540,26 @@ def stop_keyboard(message):
 
 @bot.message_handler(commands=['feedback'])
 def send_feed(message):
-   bot.send_message(usuarito, message.text)
+   msg = message.text
+   msg = msg.replace("/feedback","@" + message.from_user.username + " dice que")
+   bot.send_message(usuarito, msg)
+   print("Le dije a Gow que " + msg)
+   bot.send_message(usuaritin msg)
+   print("Le dije a Darwer que " + msg)
+
+@bot.message_handler(commands=['hide'])
+def hide_items(message):
+    if message.from_user.id in listaPermitidos:
+        hideShit(message.from_user.id , message.text)
+    else:
+        bot.send_message(usuarito, "Me escribio el usuario @{}".format(message.from_user.username))
+
+@bot.message_handler(commands=['g_hide'])
+def deposit_items(message):
+   if message.from_user.id in listaPermitidos:
+       hideShitonGuild(message.from_user.id , message.text)
+   else:
+       bot.send_message(usuarito, "Me escribio el usuario @{}".format(message.from_user.username))
 
 @bot.message_handler(commands=['work'])
 def workOnChat(message):
@@ -554,14 +608,13 @@ def echo_all(message):
 
     elif("Guild Warehouse" in message.text and message.from_user.id not in listaPermitidos):
         bot.send_message(usuarito,"Me escribio el usuario @{}".format(message.from_user.username))
-    # if("Esconde" in message.text):
-    #     sendSellCodes(message.from_user.id , message.text)
 
-    if("Hide" in message.text or "hide" in message.text and message.from_user.id in listaPermitidos):
-        hideShit(message.from_user.id , message.text)
-        sent = 1
-    elif("Hide" in message.text or "hide" in message.text and message.from_user.id not in listaPermitidos):
-        bot.send_message(usuarito, "Me escribio el usuario @{}".format(message.from_user.username))
+
+    # if("hide" in message.text or "hide" in message.text and message.from_user.id in listaPermitidos):
+    #     hideShit(message.from_user.id , message.text)
+    #     sent = 1
+    # elif("Hide" in message.text or "hide" in message.text and message.from_user.id not in listaPermitidos):
+    #     bot.send_message(usuarito, "Me escribio el usuario @{}".format(message.from_user.username))
 
     # else:
     #     if(sent == 0):
